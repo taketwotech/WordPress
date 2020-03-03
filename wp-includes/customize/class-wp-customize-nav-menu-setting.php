@@ -125,9 +125,9 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param WP_Customize_Manager $manager Bootstrap Customizer instance.
-	 * @param string               $id      An specific ID of the setting. Can be a
-	 *                                      theme mod or option name.
+	 * @param WP_Customize_Manager $manager Customizer bootstrap instance.
+	 * @param string               $id      A specific ID of the setting.
+	 *                                      Can be a theme mod or option name.
 	 * @param array                $args    Optional. Setting arguments.
 	 *
 	 * @throws Exception If $id is not valid for this setting type.
@@ -156,7 +156,7 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 	 * @return array Instance data.
 	 */
 	public function value() {
-		if ( $this->is_previewed && $this->_previewed_blog_id === get_current_blog_id() ) {
+		if ( $this->is_previewed && get_current_blog_id() === $this->_previewed_blog_id ) {
 			$undefined  = new stdClass(); // Symbol.
 			$post_value = $this->post_value( $undefined );
 
@@ -269,7 +269,8 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 					'term_group'       => 0,
 					'taxonomy'         => self::TAXONOMY,
 					'filter'           => 'raw',
-				), $setting_value
+				),
+				$setting_value
 			);
 
 			array_splice( $menus, $index, ( -1 === $index ? 0 : 1 ), array( $menu_obj ) );
@@ -278,12 +279,13 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 		// Make sure the menu objects get re-sorted after an update/insert.
 		if ( ! $is_delete && ! empty( $args['orderby'] ) ) {
 			$menus = wp_list_sort(
-				$menus, array(
+				$menus,
+				array(
 					$args['orderby'] => 'ASC',
 				)
 			);
 		}
-		// @todo add support for $args['hide_empty'] === true
+		// @todo Add support for $args['hide_empty'] === true.
 
 		return $menus;
 	}
@@ -366,7 +368,8 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 				'term_group'       => 0,
 				'taxonomy'         => self::TAXONOMY,
 				'filter'           => 'raw',
-			), $setting_value
+			),
+			$setting_value
 		);
 
 		return $menu_obj;
@@ -378,10 +381,10 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 	 * @since 4.3.0
 	 *
 	 * @param array $nav_menu_options Nav menu options including auto_add.
-	 * @return array (Kaybe) modified nav menu options.
+	 * @return array (Maybe) modified nav menu options.
 	 */
 	public function filter_nav_menu_options( $nav_menu_options ) {
-		if ( $this->_previewed_blog_id !== get_current_blog_id() ) {
+		if ( get_current_blog_id() !== $this->_previewed_blog_id ) {
 			return $nav_menu_options;
 		}
 
@@ -514,7 +517,7 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 			$name_conflict_suffix = 1;
 			while ( is_wp_error( $r ) && 'menu_exists' === $r->get_error_code() ) {
 				$name_conflict_suffix += 1;
-				/* translators: 1: original menu name, 2: duplicate count */
+				/* translators: 1: Original menu name, 2: Duplicate count. */
 				$menu_data['menu-name'] = sprintf( __( '%1$s (%2$d)' ), $original_name, $name_conflict_suffix );
 				$r                      = wp_update_nav_menu_object( $menu_id, wp_slash( $menu_data ) );
 			}
@@ -552,7 +555,7 @@ class WP_Customize_Nav_Menu_Setting extends WP_Customize_Setting {
 				}
 
 				$post_value = $setting->post_value( null );
-				if ( ! is_null( $post_value ) && $this->previous_term_id === intval( $post_value ) ) {
+				if ( ! is_null( $post_value ) && intval( $post_value ) === $this->previous_term_id ) {
 					$this->manager->set_post_value( $setting->id, $this->term_id );
 					$setting->save();
 				}

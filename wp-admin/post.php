@@ -9,25 +9,28 @@
  */
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 $parent_file  = 'edit.php';
 $submenu_file = 'edit.php';
 
 wp_reset_vars( array( 'action' ) );
 
-if ( isset( $_GET['post'] ) ) {
-	$post_id = $post_ID = (int) $_GET['post'];
+if ( isset( $_GET['post'] ) && isset( $_POST['post_ID'] ) && (int) $_GET['post'] !== (int) $_POST['post_ID'] ) {
+	wp_die( __( 'A post ID mismatch has been detected.' ), __( 'Sorry, you are not allowed to edit this item.' ), 400 );
+} elseif ( isset( $_GET['post'] ) ) {
+	$post_id = (int) $_GET['post'];
 } elseif ( isset( $_POST['post_ID'] ) ) {
-	$post_id = $post_ID = (int) $_POST['post_ID'];
+	$post_id = (int) $_POST['post_ID'];
 } else {
-	$post_id = $post_ID = 0;
+	$post_id = 0;
 }
+$post_ID = $post_id;
 
 /**
  * @global string  $post_type
  * @global object  $post_type_object
- * @global WP_Post $post
+ * @global WP_Post $post             Global post object.
  */
 global $post_type, $post_type_object, $post;
 
@@ -40,6 +43,10 @@ if ( $post ) {
 	$post_type_object = get_post_type_object( $post_type );
 }
 
+if ( isset( $_POST['post_type'] ) && $post && $post_type !== $_POST['post_type'] ) {
+	wp_die( __( 'A post type mismatch has been detected.' ), __( 'Sorry, you are not allowed to edit this item.' ), 400 );
+}
+
 if ( isset( $_POST['deletepost'] ) ) {
 	$action = 'delete';
 } elseif ( isset( $_POST['wp-preview'] ) && 'dopreview' == $_POST['wp-preview'] ) {
@@ -48,8 +55,8 @@ if ( isset( $_POST['deletepost'] ) ) {
 
 $sendback = wp_get_referer();
 if ( ! $sendback ||
-	strpos( $sendback, 'post.php' ) !== false ||
-	strpos( $sendback, 'post-new.php' ) !== false ) {
+	false !== strpos( $sendback, 'post.php' ) ||
+	false !== strpos( $sendback, 'post-new.php' ) ) {
 	if ( 'attachment' == $post_type ) {
 		$sendback = admin_url( 'upload.php' );
 	} else {
@@ -64,11 +71,11 @@ if ( ! $sendback ||
 
 switch ( $action ) {
 	case 'post-quickdraft-save':
-		// Check nonce and capabilities
+		// Check nonce and capabilities.
 		$nonce     = $_REQUEST['_wpnonce'];
 		$error_msg = false;
 
-		// For output of the quickdraft dashboard widget
+		// For output of the Quick Draft dashboard widget.
 		require_once ABSPATH . 'wp-admin/includes/dashboard.php';
 
 		if ( ! wp_verify_nonce( $nonce, 'add-post' ) ) {
@@ -88,6 +95,14 @@ switch ( $action ) {
 
 		$_POST['comment_status'] = get_default_comment_status( $post->post_type );
 		$_POST['ping_status']    = get_default_comment_status( $post->post_type, 'pingback' );
+
+		// Wrap Quick Draft content in the Paragraph block.
+		if ( false === strpos( $_POST['content'], '<!-- wp:paragraph -->' ) ) {
+			$_POST['content'] = sprintf(
+				'<!-- wp:paragraph -->%s<!-- /wp:paragraph -->',
+				str_replace( array( "\r\n", "\r", "\n" ), '<br />', $_POST['content'] )
+			);
+		}
 
 		edit_post();
 		wp_dashboard_quick_press();
@@ -145,7 +160,7 @@ switch ( $action ) {
 			$submenu_file  = 'upload.php';
 			$post_new_file = 'media-new.php';
 		} else {
-			if ( isset( $post_type_object ) && $post_type_object->show_in_menu && $post_type_object->show_in_menu !== true ) {
+			if ( isset( $post_type_object ) && $post_type_object->show_in_menu && true !== $post_type_object->show_in_menu ) {
 				$parent_file = $post_type_object->show_in_menu;
 			} else {
 				$parent_file = "edit.php?post_type=$post_type";
@@ -154,15 +169,22 @@ switch ( $action ) {
 			$post_new_file = "post-new.php?post_type=$post_type";
 		}
 
+		$title = $post_type_object->labels->edit_item;
+
 		/**
 		 * Allows replacement of the editor.
 		 *
 		 * @since 4.9.0
 		 *
-		 * @param boolean      Whether to replace the editor. Default false.
-		 * @param object $post Post object.
+		 * @param bool    $replace Whether to replace the editor. Default false.
+		 * @param WP_Post $post    Post object.
 		 */
-		if ( apply_filters( 'replace_editor', false, $post ) === true ) {
+		if ( true === apply_filters( 'replace_editor', false, $post ) ) {
+			break;
+		}
+
+		if ( use_block_editor_for_post( $post ) ) {
+			require ABSPATH . 'wp-admin/edit-form-blocks.php';
 			break;
 		}
 
@@ -174,42 +196,42 @@ switch ( $action ) {
 			}
 		}
 
-		$title = $post_type_object->labels->edit_item;
-		$post  = get_post( $post_id, OBJECT, 'edit' );
+		$post = get_post( $post_id, OBJECT, 'edit' );
 
 		if ( post_type_supports( $post_type, 'comments' ) ) {
 			wp_enqueue_script( 'admin-comments' );
 			enqueue_comment_hotkeys_js();
 		}
 
-		include( ABSPATH . 'wp-admin/edit-form-advanced.php' );
+		require ABSPATH . 'wp-admin/edit-form-advanced.php';
 
 		break;
 
 	case 'editattachment':
 		check_admin_referer( 'update-post_' . $post_id );
 
-		// Don't let these be changed
+		// Don't let these be changed.
 		unset( $_POST['guid'] );
 		$_POST['post_type'] = 'attachment';
 
-		// Update the thumbnail filename
+		// Update the thumbnail filename.
 		$newmeta          = wp_get_attachment_metadata( $post_id, true );
-		$newmeta['thumb'] = $_POST['thumb'];
+		$newmeta['thumb'] = wp_basename( $_POST['thumb'] );
 
 		wp_update_attachment_metadata( $post_id, $newmeta );
 
+		// Intentional fall-through to trigger the edit_post() call.
 	case 'editpost':
 		check_admin_referer( 'update-post_' . $post_id );
 
 		$post_id = edit_post();
 
-		// Session cookie flag that the post was saved
+		// Session cookie flag that the post was saved.
 		if ( isset( $_COOKIE['wp-saving-post'] ) && $_COOKIE['wp-saving-post'] === $post_id . '-check' ) {
 			setcookie( 'wp-saving-post', $post_id . '-saved', time() + DAY_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN, is_ssl() );
 		}
 
-		redirect_post( $post_id ); // Send user on their way while we keep working
+		redirect_post( $post_id ); // Send user on their way while we keep working.
 
 		exit();
 
@@ -228,8 +250,10 @@ switch ( $action ) {
 			wp_die( __( 'Sorry, you are not allowed to move this item to the Trash.' ) );
 		}
 
-		if ( $user_id = wp_check_post_lock( $post_id ) ) {
+		$user_id = wp_check_post_lock( $post_id );
+		if ( $user_id ) {
 			$user = get_userdata( $user_id );
+			/* translators: %s: User's display name. */
 			wp_die( sprintf( __( 'You cannot move this item to the Trash. %s is currently editing.' ), $user->display_name ) );
 		}
 
@@ -242,7 +266,8 @@ switch ( $action ) {
 				array(
 					'trashed' => 1,
 					'ids'     => $post_id,
-				), $sendback
+				),
+				$sendback
 			)
 		);
 		exit();
@@ -284,7 +309,7 @@ switch ( $action ) {
 			wp_die( __( 'Sorry, you are not allowed to delete this item.' ) );
 		}
 
-		if ( $post->post_type == 'attachment' ) {
+		if ( 'attachment' === $post->post_type ) {
 			$force = ( ! MEDIA_TRASH );
 			if ( ! wp_delete_attachment( $post_id, $force ) ) {
 				wp_die( __( 'Error in deleting.' ) );
@@ -306,6 +331,18 @@ switch ( $action ) {
 		wp_redirect( $url );
 		exit();
 
+	case 'toggle-custom-fields':
+		check_admin_referer( 'toggle-custom-fields' );
+
+		$current_user_id = get_current_user_id();
+		if ( $current_user_id ) {
+			$enable_custom_fields = (bool) get_user_meta( $current_user_id, 'enable_custom_fields', true );
+			update_user_meta( $current_user_id, 'enable_custom_fields', ! $enable_custom_fields );
+		}
+
+		wp_safe_redirect( wp_get_referer() );
+		exit();
+
 	default:
 		/**
 		 * Fires for a given custom post action request.
@@ -320,5 +357,6 @@ switch ( $action ) {
 
 		wp_redirect( admin_url( 'edit.php' ) );
 		exit();
-} // end switch
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+} // End switch.
+
+require_once ABSPATH . 'wp-admin/admin-footer.php';

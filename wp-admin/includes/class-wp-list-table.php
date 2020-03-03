@@ -137,7 +137,8 @@ class WP_List_Table {
 	 */
 	public function __construct( $args = array() ) {
 		$args = wp_parse_args(
-			$args, array(
+			$args,
+			array(
 				'plural'   => '',
 				'singular' => '',
 				'ajax'     => false,
@@ -238,7 +239,7 @@ class WP_List_Table {
 	 */
 	public function __call( $name, $arguments ) {
 		if ( in_array( $name, $this->compat_methods ) ) {
-			return call_user_func_array( array( $this, $name ), $arguments );
+			return $this->$name( ...$arguments );
 		}
 		return false;
 	}
@@ -250,7 +251,7 @@ class WP_List_Table {
 	 * @abstract
 	 */
 	public function ajax_user_can() {
-		die( 'function WP_List_Table::ajax_user_can() must be over-ridden in a sub-class.' );
+		die( 'function WP_List_Table::ajax_user_can() must be overridden in a subclass.' );
 	}
 
 	/**
@@ -262,7 +263,7 @@ class WP_List_Table {
 	 * @abstract
 	 */
 	public function prepare_items() {
-		die( 'function WP_List_Table::prepare_items() must be over-ridden in a sub-class.' );
+		die( 'function WP_List_Table::prepare_items() must be overridden in a subclass.' );
 	}
 
 	/**
@@ -274,7 +275,8 @@ class WP_List_Table {
 	 */
 	protected function set_pagination_args( $args ) {
 		$args = wp_parse_args(
-			$args, array(
+			$args,
+			array(
 				'total_items' => 0,
 				'total_pages' => 0,
 				'per_page'    => 0,
@@ -360,13 +362,13 @@ class WP_List_Table {
 		if ( ! empty( $_REQUEST['detached'] ) ) {
 			echo '<input type="hidden" name="detached" value="' . esc_attr( $_REQUEST['detached'] ) . '" />';
 		}
-?>
+		?>
 <p class="search-box">
 	<label class="screen-reader-text" for="<?php echo esc_attr( $input_id ); ?>"><?php echo $text; ?>:</label>
 	<input type="search" id="<?php echo esc_attr( $input_id ); ?>" name="s" value="<?php _admin_search_query(); ?>" />
-	<?php submit_button( $text, '', '', false, array( 'id' => 'search-submit' ) ); ?>
+		<?php submit_button( $text, '', '', false, array( 'id' => 'search-submit' ) ); ?>
 </p>
-<?php
+		<?php
 	}
 
 	/**
@@ -449,7 +451,7 @@ class WP_List_Table {
 			 *
 			 * @param string[] $actions An array of the available bulk actions.
 			 */
-			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
+			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 			$two            = '';
 		} else {
 			$two = '2';
@@ -499,13 +501,13 @@ class WP_List_Table {
 	}
 
 	/**
-	 * Generate row actions div
+	 * Generates the required HTML for a list of row action links.
 	 *
 	 * @since 3.1.0
 	 *
 	 * @param string[] $actions        An array of action links.
 	 * @param bool     $always_visible Whether the actions should be always visible.
-	 * @return string
+	 * @return string The HTML for the row actions.
 	 */
 	protected function row_actions( $actions, $always_visible = false ) {
 		$action_count = count( $actions );
@@ -529,14 +531,14 @@ class WP_List_Table {
 	}
 
 	/**
-	 * Display a monthly dropdown for filtering items
+	 * Displays a dropdown for filtering items in the list table by month.
 	 *
 	 * @since 3.1.0
 	 *
-	 * @global wpdb      $wpdb
-	 * @global WP_Locale $wp_locale
+	 * @global wpdb      $wpdb      WordPress database abstraction object.
+	 * @global WP_Locale $wp_locale WordPress date and time locale object.
 	 *
-	 * @param string $post_type
+	 * @param string $post_type The post type.
 	 */
 	protected function months_dropdown( $post_type ) {
 		global $wpdb, $wp_locale;
@@ -568,7 +570,8 @@ class WP_List_Table {
 			WHERE post_type = %s
 			$extra_checks
 			ORDER BY post_date DESC
-		", $post_type
+		",
+				$post_type
 			)
 		);
 
@@ -577,8 +580,8 @@ class WP_List_Table {
 		 *
 		 * @since 3.7.0
 		 *
-		 * @param object $months    The months drop-down query results.
-		 * @param string $post_type The post type.
+		 * @param object[] $months    Array of the months drop-down query results.
+		 * @param string   $post_type The post type.
 		 */
 		$months = apply_filters( 'months_dropdown_results', $months, $post_type );
 
@@ -589,30 +592,30 @@ class WP_List_Table {
 		}
 
 		$m = isset( $_GET['m'] ) ? (int) $_GET['m'] : 0;
-?>
+		?>
 		<label for="filter-by-date" class="screen-reader-text"><?php _e( 'Filter by date' ); ?></label>
 		<select name="m" id="filter-by-date">
 			<option<?php selected( $m, 0 ); ?> value="0"><?php _e( 'All dates' ); ?></option>
-<?php
-foreach ( $months as $arc_row ) {
-	if ( 0 == $arc_row->year ) {
-		continue;
-	}
+		<?php
+		foreach ( $months as $arc_row ) {
+			if ( 0 == $arc_row->year ) {
+				continue;
+			}
 
-	$month = zeroise( $arc_row->month, 2 );
-	$year  = $arc_row->year;
+			$month = zeroise( $arc_row->month, 2 );
+			$year  = $arc_row->year;
 
-	printf(
-		"<option %s value='%s'>%s</option>\n",
-		selected( $m, $year . $month, false ),
-		esc_attr( $arc_row->year . $month ),
-		/* translators: 1: month name, 2: 4-digit year */
-		sprintf( __( '%1$s %2$d' ), $wp_locale->get_month( $month ), $year )
-	);
-}
-?>
+			printf(
+				"<option %s value='%s'>%s</option>\n",
+				selected( $m, $year . $month, false ),
+				esc_attr( $arc_row->year . $month ),
+				/* translators: 1: Month name, 2: 4-digit year. */
+				sprintf( __( '%1$s %2$d' ), $wp_locale->get_month( $month ), $year )
+			);
+		}
+		?>
 		</select>
-<?php
+		<?php
 	}
 
 	/**
@@ -623,25 +626,28 @@ foreach ( $months as $arc_row ) {
 	 * @param string $current_mode
 	 */
 	protected function view_switcher( $current_mode ) {
-?>
+		?>
 		<input type="hidden" name="mode" value="<?php echo esc_attr( $current_mode ); ?>" />
 		<div class="view-switch">
-<?php
-foreach ( $this->modes as $mode => $title ) {
-	$classes = array( 'view-' . $mode );
-	if ( $current_mode === $mode ) {
-		$classes[] = 'current';
-	}
-	printf(
-		"<a href='%s' class='%s' id='view-switch-$mode'><span class='screen-reader-text'>%s</span></a>\n",
-		esc_url( add_query_arg( 'mode', $mode ) ),
-		implode( ' ', $classes ),
-		$title
-	);
-}
+		<?php
+		foreach ( $this->modes as $mode => $title ) {
+			$classes      = array( 'view-' . $mode );
+			$aria_current = '';
+
+			if ( $current_mode === $mode ) {
+				$classes[]    = 'current';
+				$aria_current = ' aria-current="page"';
+			}
+			printf(
+				"<a href='%s' class='%s' id='view-switch-$mode'$aria_current><span class='screen-reader-text'>%s</span></a>\n",
+				esc_url( add_query_arg( 'mode', $mode ) ),
+				implode( ' ', $classes ),
+				$title
+			);
+		}
 		?>
 		</div>
-<?php
+		<?php
 	}
 
 	/**
@@ -658,9 +664,23 @@ foreach ( $this->modes as $mode => $title ) {
 		$approved_comments_number = number_format_i18n( $approved_comments );
 		$pending_comments_number  = number_format_i18n( $pending_comments );
 
-		$approved_only_phrase = sprintf( _n( '%s comment', '%s comments', $approved_comments ), $approved_comments_number );
-		$approved_phrase      = sprintf( _n( '%s approved comment', '%s approved comments', $approved_comments ), $approved_comments_number );
-		$pending_phrase       = sprintf( _n( '%s pending comment', '%s pending comments', $pending_comments ), $pending_comments_number );
+		$approved_only_phrase = sprintf(
+			/* translators: %s: Number of comments. */
+			_n( '%s comment', '%s comments', $approved_comments ),
+			$approved_comments_number
+		);
+
+		$approved_phrase = sprintf(
+			/* translators: %s: Number of comments. */
+			_n( '%s approved comment', '%s approved comments', $approved_comments ),
+			$approved_comments_number
+		);
+
+		$pending_phrase = sprintf(
+			/* translators: %s: Number of comments. */
+			_n( '%s pending comment', '%s pending comments', $pending_comments ),
+			$pending_comments_number
+		);
 
 		// No comments at all.
 		if ( ! $approved_comments && ! $pending_comments ) {
@@ -677,7 +697,8 @@ foreach ( $this->modes as $mode => $title ) {
 						array(
 							'p'              => $post_id,
 							'comment_status' => 'approved',
-						), admin_url( 'edit-comments.php' )
+						),
+						admin_url( 'edit-comments.php' )
 					)
 				),
 				$approved_comments_number,
@@ -699,7 +720,8 @@ foreach ( $this->modes as $mode => $title ) {
 						array(
 							'p'              => $post_id,
 							'comment_status' => 'moderated',
-						), admin_url( 'edit-comments.php' )
+						),
+						admin_url( 'edit-comments.php' )
 					)
 				),
 				$pending_comments_number,
@@ -785,7 +807,11 @@ foreach ( $this->modes as $mode => $title ) {
 			$this->screen->render_screen_reader_content( 'heading_pagination' );
 		}
 
-		$output = '<span class="displaying-num">' . sprintf( _n( '%s item', '%s items', $total_items ), number_format_i18n( $total_items ) ) . '</span>';
+		$output = '<span class="displaying-num">' . sprintf(
+			/* translators: %s: Number of items. */
+			_n( '%s item', '%s items', $total_items ),
+			number_format_i18n( $total_items )
+		) . '</span>';
 
 		$current              = $this->get_pagenum();
 		$removable_query_args = wp_removable_query_args();
@@ -799,20 +825,23 @@ foreach ( $this->modes as $mode => $title ) {
 		$total_pages_before = '<span class="paging-input">';
 		$total_pages_after  = '</span></span>';
 
-		$disable_first = $disable_last = $disable_prev = $disable_next = false;
+		$disable_first = false;
+		$disable_last  = false;
+		$disable_prev  = false;
+		$disable_next  = false;
 
-		if ( $current == 1 ) {
+		if ( 1 == $current ) {
 			$disable_first = true;
 			$disable_prev  = true;
 		}
-		if ( $current == 2 ) {
+		if ( 2 == $current ) {
 			$disable_first = true;
 		}
-		if ( $current == $total_pages ) {
+		if ( $total_pages == $current ) {
 			$disable_last = true;
 			$disable_next = true;
 		}
-		if ( $current == $total_pages - 1 ) {
+		if ( $total_pages - 1 == $current ) {
 			$disable_last = true;
 		}
 
@@ -850,7 +879,12 @@ foreach ( $this->modes as $mode => $title ) {
 			);
 		}
 		$html_total_pages = sprintf( "<span class='total-pages'>%s</span>", number_format_i18n( $total_pages ) );
-		$page_links[]     = $total_pages_before . sprintf( _x( '%1$s of %2$s', 'paging' ), $html_current_page, $html_total_pages ) . $total_pages_after;
+		$page_links[]     = $total_pages_before . sprintf(
+			/* translators: 1: Current page, 2: Total pages. */
+			_x( '%1$s of %2$s', 'paging' ),
+			$html_current_page,
+			$html_total_pages
+		) . $total_pages_after;
 
 		if ( $disable_next ) {
 			$page_links[] = '<span class="tablenav-pages-navspan button disabled" aria-hidden="true">&rsaquo;</span>';
@@ -900,7 +934,7 @@ foreach ( $this->modes as $mode => $title ) {
 	 * @return array
 	 */
 	public function get_columns() {
-		die( 'function WP_List_Table::get_columns() must be over-ridden in a sub-class.' );
+		die( 'function WP_List_Table::get_columns() must be overridden in a subclass.' );
 	}
 
 	/**
@@ -970,8 +1004,8 @@ foreach ( $this->modes as $mode => $title ) {
 		$columns = get_column_headers( $this->screen );
 		$default = $this->get_default_primary_column_name();
 
-		// If the primary column doesn't exist fall back to the
-		// first non-checkbox column.
+		// If the primary column doesn't exist,
+		// fall back to the first non-checkbox column.
 		if ( ! isset( $columns[ $default ] ) ) {
 			$default = WP_List_Table::get_default_primary_column_name();
 		}
@@ -1001,7 +1035,7 @@ foreach ( $this->modes as $mode => $title ) {
 	 * @return array
 	 */
 	protected function get_column_info() {
-		// $_column_headers is already set / cached
+		// $_column_headers is already set / cached.
 		if ( isset( $this->_column_headers ) && is_array( $this->_column_headers ) ) {
 			// Back-compat for list tables that have been manually setting $_column_headers for horse reasons.
 			// In 4.3, we added a fourth argument for primary column.
@@ -1142,7 +1176,7 @@ foreach ( $this->modes as $mode => $title ) {
 	}
 
 	/**
-	 * Display the table
+	 * Displays the table.
 	 *
 	 * @since 3.1.0
 	 */
@@ -1152,7 +1186,7 @@ foreach ( $this->modes as $mode => $title ) {
 		$this->display_tablenav( 'top' );
 
 		$this->screen->render_screen_reader_content( 'heading_list' );
-?>
+		?>
 <table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
 	<thead>
 	<tr>
@@ -1161,10 +1195,10 @@ foreach ( $this->modes as $mode => $title ) {
 	</thead>
 
 	<tbody id="the-list"
-	<?php
-	if ( $singular ) {
-		echo " data-wp-lists='list:$singular'";
-	}
+		<?php
+		if ( $singular ) {
+			echo " data-wp-lists='list:$singular'";
+		}
 		?>
 		>
 		<?php $this->display_rows_or_placeholder(); ?>
@@ -1177,7 +1211,7 @@ foreach ( $this->modes as $mode => $title ) {
 	</tfoot>
 
 </table>
-<?php
+		<?php
 		$this->display_tablenav( 'bottom' );
 	}
 
@@ -1186,7 +1220,7 @@ foreach ( $this->modes as $mode => $title ) {
 	 *
 	 * @since 3.1.0
 	 *
-	 * @return array List of CSS classes for the table tag.
+	 * @return string[] Array of CSS classes for the table tag.
 	 */
 	protected function get_table_classes() {
 		return array( 'widefat', 'fixed', 'striped', $this->_args['plural'] );
@@ -1209,15 +1243,15 @@ foreach ( $this->modes as $mode => $title ) {
 		<div class="alignleft actions bulkactions">
 			<?php $this->bulk_actions( $which ); ?>
 		</div>
-		<?php
+			<?php
 		endif;
 		$this->extra_tablenav( $which );
 		$this->pagination( $which );
-?>
+		?>
 
 		<br class="clear" />
 	</div>
-<?php
+		<?php
 	}
 
 	/**
@@ -1339,7 +1373,8 @@ foreach ( $this->modes as $mode => $title ) {
 	 * @param object $item        The item being acted upon.
 	 * @param string $column_name Current column name.
 	 * @param string $primary     Primary column name.
-	 * @return string The row actions HTML, or an empty string if the current column is the primary column.
+	 * @return string The row actions HTML, or an empty string
+	 *                if the current column is not the primary column.
 	 */
 	protected function handle_row_actions( $item, $column_name, $primary ) {
 		return $column_name === $primary ? '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( 'Show more details' ) . '</span></button>' : '';
@@ -1366,6 +1401,7 @@ foreach ( $this->modes as $mode => $title ) {
 
 		if ( isset( $this->_pagination_args['total_items'] ) ) {
 			$response['total_items_i18n'] = sprintf(
+				/* translators: Number of items. */
 				_n( '%s item', '%s items', $this->_pagination_args['total_items'] ),
 				number_format_i18n( $this->_pagination_args['total_items'] )
 			);

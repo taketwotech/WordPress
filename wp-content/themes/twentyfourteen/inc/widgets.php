@@ -4,7 +4,7 @@
  *
  * Displays posts from Aside, Quote, Video, Audio, Image, Gallery, and Link formats.
  *
- * @link https://codex.wordpress.org/Widgets_API#Developing_Widgets
+ * @link https://developer.wordpress.org/themes/functionality/widgets/#developing-widgets
  *
  * @package WordPress
  * @subpackage Twenty_Fourteen
@@ -31,7 +31,9 @@ class Twenty_Fourteen_Ephemera_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		parent::__construct(
-			'widget_twentyfourteen_ephemera', __( 'Twenty Fourteen Ephemera', 'twentyfourteen' ), array(
+			'widget_twentyfourteen_ephemera',
+			__( 'Twenty Fourteen Ephemera', 'twentyfourteen' ),
+			array(
 				'classname'                   => 'widget_twentyfourteen_ephemera',
 				'description'                 => __( 'Use this widget to list your recent Aside, Quote, Video, Audio, Image, Gallery, and Link posts.', 'twentyfourteen' ),
 				'customize_selective_refresh' => true,
@@ -140,7 +142,7 @@ class Twenty_Fourteen_Ephemera_Widget extends WP_Widget {
 					$ephemera->the_post();
 					$tmp_more        = $GLOBALS['more'];
 					$GLOBALS['more'] = 0;
-				?>
+					?>
 				<li>
 				<article <?php post_class(); ?>>
 				<div class="entry-content">
@@ -181,25 +183,26 @@ class Twenty_Fourteen_Ephemera_Widget extends WP_Widget {
 									endif;
 
 									if ( ! empty( $post_thumbnail ) ) :
-						?>
+										?>
 						<a href="<?php the_permalink(); ?>"><?php echo $post_thumbnail; ?></a>
 						<?php endif; ?>
 						<p class="wp-caption-text">
-						<?php
-							printf(
-								_n( 'This gallery contains <a href="%1$s" rel="bookmark">%2$s photo</a>.', 'This gallery contains <a href="%1$s" rel="bookmark">%2$s photos</a>.', $total_images, 'twentyfourteen' ),
-								esc_url( get_permalink() ),
-								number_format_i18n( $total_images )
-							);
-						?>
+								<?php
+								printf(
+									/* translators: 1: Post permalink, 2: Number of images in the gallery. */
+									_n( 'This gallery contains <a href="%1$s" rel="bookmark">%2$s photo</a>.', 'This gallery contains <a href="%1$s" rel="bookmark">%2$s photos</a>.', $total_images, 'twentyfourteen' ),
+									esc_url( get_permalink() ),
+									number_format_i18n( $total_images )
+								);
+								?>
 						</p>
-						<?php
+								<?php
 						endif;
 
 							else :
 								the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'twentyfourteen' ) );
 							endif;
-						?>
+							?>
 					</div><!-- .entry-content -->
 
 					<header class="entry-header">
@@ -224,14 +227,14 @@ class Twenty_Fourteen_Ephemera_Widget extends WP_Widget {
 							<?php endif; ?>
 						</div><!-- .entry-meta -->
 					</header><!-- .entry-header -->
-				</article><!-- #post-## -->
+				</article><!-- #post-<?php the_ID(); ?> -->
 				</li>
 				<?php endwhile; ?>
 
 			</ol>
 			<a class="post-format-archive-link" href="<?php echo esc_url( get_post_format_link( $format ) ); ?>">
 				<?php
-					/* translators: used with More archives link */
+					/* translators: Used with More archives link. */
 					printf( __( '%s <span class="meta-nav">&rarr;</span>', 'twentyfourteen' ), $format_string_more );
 				?>
 			</a>

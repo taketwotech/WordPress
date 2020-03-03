@@ -6,24 +6,26 @@
  * @subpackage Administration
  */
 
-// don't load directly
+// Don't load directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	die( '-1' );
 }
 
 if ( ! empty( $link_id ) ) {
+	/* translators: %s: URL to Links screen. */
 	$heading      = sprintf( __( '<a href="%s">Links</a> / Edit Link' ), 'link-manager.php' );
 	$submit_text  = __( 'Update Link' );
 	$form_name    = 'editlink';
 	$nonce_action = 'update-bookmark_' . $link_id;
 } else {
+	/* translators: %s: URL to Links screen. */
 	$heading      = sprintf( __( '<a href="%s">Links</a> / Add New Link' ), 'link-manager.php' );
 	$submit_text  = __( 'Add Link' );
 	$form_name    = 'addlink';
 	$nonce_action = 'add-bookmark';
 }
 
-require_once( ABSPATH . 'wp-admin/includes/meta-boxes.php' );
+require_once ABSPATH . 'wp-admin/includes/meta-boxes.php';
 
 add_meta_box( 'linksubmitdiv', __( 'Save' ), 'link_submit_meta_box', null, 'side', 'core' );
 add_meta_box( 'linkcategorydiv', __( 'Categories' ), 'link_categories_meta_box', null, 'normal', 'core' );
@@ -31,7 +33,7 @@ add_meta_box( 'linktargetdiv', __( 'Target' ), 'link_target_meta_box', null, 'no
 add_meta_box( 'linkxfndiv', __( 'Link Relationship (XFN)' ), 'link_xfn_meta_box', null, 'normal', 'core' );
 add_meta_box( 'linkadvanceddiv', __( 'Advanced' ), 'link_advanced_meta_box', null, 'normal', 'core' );
 
-/** This action is documented in wp-admin/edit-form-advanced.php */
+/** This action is documented in wp-admin/includes/meta-boxes.php */
 do_action( 'add_meta_boxes', 'link', $link );
 
 /**
@@ -43,15 +45,16 @@ do_action( 'add_meta_boxes', 'link', $link );
  */
 do_action( 'add_meta_boxes_link', $link );
 
-/** This action is documented in wp-admin/edit-form-advanced.php */
+/** This action is documented in wp-admin/includes/meta-boxes.php */
 do_action( 'do_meta_boxes', 'link', 'normal', $link );
-/** This action is documented in wp-admin/edit-form-advanced.php */
+/** This action is documented in wp-admin/includes/meta-boxes.php */
 do_action( 'do_meta_boxes', 'link', 'advanced', $link );
-/** This action is documented in wp-admin/edit-form-advanced.php */
+/** This action is documented in wp-admin/includes/meta-boxes.php */
 do_action( 'do_meta_boxes', 'link', 'side', $link );
 
 add_screen_option(
-	'layout_columns', array(
+	'layout_columns',
+	array(
 		'max'     => 2,
 		'default' => 2,
 	)
@@ -71,10 +74,10 @@ get_current_screen()->add_help_tab(
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
 	'<p>' . __( '<a href="https://codex.wordpress.org/Links_Add_New_Screen">Documentation on Creating Links</a>' ) . '</p>' .
-	'<p>' . __( '<a href="https://wordpress.org/support/">Support Forums</a>' ) . '</p>'
+	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
 );
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="wrap">
@@ -153,7 +156,7 @@ do_meta_boxes( null, 'advanced', $link );
 <?php
 
 if ( $link_id ) :
-?>
+	?>
 <input type="hidden" name="action" value="save" />
 <input type="hidden" name="link_id" value="<?php echo (int) $link_id; ?>" />
 <input type="hidden" name="cat_id" value="<?php echo (int) $cat_id; ?>" />

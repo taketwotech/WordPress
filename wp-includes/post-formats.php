@@ -15,7 +15,9 @@
  * @return string|false The format if successful. False otherwise.
  */
 function get_post_format( $post = null ) {
-	if ( ! $post = get_post( $post ) ) {
+	$post = get_post( $post );
+
+	if ( ! $post ) {
 		return false;
 	}
 
@@ -39,8 +41,8 @@ function get_post_format( $post = null ) {
  *
  * @since 3.1.0
  *
- * @param string|array    $format Optional. The format or formats to check.
- * @param object|int|null $post   Optional. The post to check. If not supplied, defaults to the current post if used in the loop.
+ * @param string|array     $format Optional. The format or formats to check.
+ * @param WP_Post|int|null $post   Optional. The post to check. If not supplied, defaults to the current post if used in the loop.
  * @return bool True if the post has any of the given formats (or any format, if no format specified), false otherwise.
  */
 function has_post_format( $format = array(), $post = null ) {
@@ -67,7 +69,7 @@ function has_post_format( $format = array(), $post = null ) {
 function set_post_format( $post, $format ) {
 	$post = get_post( $post );
 
-	if ( empty( $post ) ) {
+	if ( ! $post ) {
 		return new WP_Error( 'invalid_post', __( 'Invalid post.' ) );
 	}
 
@@ -88,11 +90,11 @@ function set_post_format( $post, $format ) {
  *
  * @since 3.1.0
  *
- * @return array The array of translated post format names.
+ * @return string[] Array of post format labels keyed by format slug.
  */
 function get_post_format_strings() {
 	$strings = array(
-		'standard' => _x( 'Standard', 'Post format' ), // Special case. any value that evals to false will be considered standard
+		'standard' => _x( 'Standard', 'Post format' ), // Special case. Any value that evals to false will be considered standard.
 		'aside'    => _x( 'Aside', 'Post format' ),
 		'chat'     => _x( 'Chat', 'Post format' ),
 		'gallery'  => _x( 'Gallery', 'Post format' ),
@@ -111,7 +113,7 @@ function get_post_format_strings() {
  *
  * @since 3.1.0
  *
- * @return array The array of post format slugs as both keys and values.
+ * @return string[] The array of post format slugs as both keys and values.
  */
 function get_post_format_slugs() {
 	$slugs = array_keys( get_post_format_strings() );
@@ -181,7 +183,7 @@ function _post_format_request( $qvs ) {
  * @access private
  * @since 3.1.0
  *
- * @global WP_Rewrite $wp_rewrite
+ * @global WP_Rewrite $wp_rewrite WordPress rewrite component.
  *
  * @param string $link
  * @param object $term

@@ -1,3 +1,7 @@
+/**
+ * @output wp-admin/js/color-picker.js
+ */
+
 /* global wpColorPickerL10n */
 ( function( $, undef ) {
 
@@ -32,10 +36,9 @@
 		 * Creates a color picker that only allows you to adjust the hue.
 		 *
 		 * @since 3.5.0
-		 *
 		 * @access private
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		_createHueOnly: function() {
 			var self = this,
@@ -61,7 +64,7 @@
 				 * @param {Event} event    The event that's being called.
 				 * @param {HTMLElement} ui The HTMLElement containing the color picker.
 				 *
-				 * @returns {void}
+				 * @return {void}
 				 */
 				change: function( event, ui ) {
 					if ( $.isFunction( self.options.change ) ) {
@@ -76,10 +79,9 @@
 		 * Creates the color picker, sets default values, css classes and wraps it all in HTML.
 		 *
 		 * @since 3.5.0
-		 *
 		 * @access private
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		_create: function() {
 			// Return early if Iris support is missing.
@@ -182,7 +184,7 @@
 				 * @param {Event} event    The event that's being called.
 				 * @param {HTMLElement} ui The HTMLElement containing the color picker.
 				 *
-				 * @returns {void}
+				 * @return {void}
 				 */
 				change: function( event, ui ) {
 					self.toggler.css( { backgroundColor: ui.color.toString() } );
@@ -205,10 +207,9 @@
 		 * Binds event listeners to the color picker.
 		 *
 		 * @since 3.5.0
-		 *
 		 * @access private
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		_addListeners: function() {
 			var self = this;
@@ -220,7 +221,7 @@
 			 *
 			 * @param {Event} event The event that's being called.
 			 *
-			 * @returs {void}
+			 * @return {void}
 			 */
 			self.wrap.on( 'click.wpcolorpicker', function( event ) {
 				event.stopPropagation();
@@ -229,7 +230,7 @@
 			/**
 			 * Open or close the color picker depending on the class.
 			 *
-			 * @since 3.5
+			 * @since 3.5.0
 			 */
 			self.toggler.click( function(){
 				if ( self.toggler.hasClass( 'wp-picker-open' ) ) {
@@ -247,7 +248,7 @@
 			 *
 			 * @param {Event} event The event that's being called.
 			 *
-			 * @returns {void}
+			 * @return {void}
 			 */
 			self.element.change( function( event ) {
 				var me = $( this ),
@@ -269,7 +270,7 @@
 			 *
 			 * @param {Event} event The event that's being called.
 			 *
-			 * @returns {void}
+			 * @return {void}
 			 */
 			self.button.click( function( event ) {
 				var me = $( this );
@@ -289,7 +290,7 @@
 		 *
 		 * @since 3.5.0
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		open: function() {
 			this.element.iris( 'toggle' );
@@ -305,7 +306,7 @@
 		 *
 		 * @since 3.5.0
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		close: function() {
 			this.element.iris( 'toggle' );
@@ -323,7 +324,7 @@
 		 *
 		 * @since 3.5.0
 		 *
-		 * @returns {string} The element's color
+		 * @return {string} The element's color.
 		 */
 		color: function( newColor ) {
 			if ( newColor === undef ) {
@@ -339,7 +340,7 @@
 		 *
 		 * @since 3.5.0
 		 *
-		 * @returns {boolean|string} The element's color.
+		 * @return {boolean|string} The element's color.
 		 */
 		defaultColor: function( newDefaultColor ) {
 			if ( newDefaultColor === undef ) {

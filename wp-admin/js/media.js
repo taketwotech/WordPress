@@ -1,19 +1,19 @@
-/* global ajaxurl, attachMediaBoxL10n, _wpMediaGridSettings, showNotice */
-
 /**
  * Creates a dialog containing posts that can have a particular media attached
  * to it.
  *
  * @since 2.7.0
+ * @output wp-admin/js/media.js
  *
  * @namespace findPosts
  *
  * @requires jQuery
  */
-var findPosts;
+
+/* global ajaxurl, attachMediaBoxL10n, _wpMediaGridSettings, showNotice, findPosts */
 
 ( function( $ ){
-	findPosts = {
+	window.findPosts = {
 		/**
 		 * Opens a dialog to attach media to a post.
 		 *
@@ -26,7 +26,7 @@ var findPosts;
 		 * @param {string} af_name The name of the affected element.
 		 * @param {string} af_val The value of the affected post element.
 		 *
-		 * @returns {boolean} Always returns false.
+		 * @return {boolean} Always returns false.
 		 */
 		open: function( af_name, af_val ) {
 			var overlay = $( '.ui-find-overlay' );
@@ -65,7 +65,7 @@ var findPosts;
 		 *
 		 * @memberOf findPosts
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		close: function() {
 			$('#find-posts-response').empty();
@@ -81,7 +81,7 @@ var findPosts;
 		 *
 		 * @memberOf findPosts
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		overlay: function() {
 			$( '.ui-find-overlay' ).on( 'click', function () {
@@ -100,7 +100,7 @@ var findPosts;
 		 *
 		 * @memberOf findPosts
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		send: function() {
 			var post = {
@@ -138,7 +138,7 @@ var findPosts;
 	 * Initializes the file once the DOM is fully loaded and attaches events to the
 	 * various form elements.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	$( document ).ready( function() {
 		var settings, $mediaGridWrap = $( '#wp-media-grid' );
@@ -198,7 +198,7 @@ var findPosts;
 		/**
 		 * Enables clicking on the entire table row.
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		$( '.find-box-inside' ).on( 'click', 'tr', function() {
 			$( this ).find( '.found-radio input' ).prop( 'checked', true );

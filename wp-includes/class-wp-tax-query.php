@@ -388,7 +388,8 @@ class WP_Tax_Query {
 			'join'  => array(),
 		);
 
-		$join = $where = '';
+		$join  = '';
+		$where = '';
 
 		$this->clean_query( $clause );
 
@@ -470,7 +471,8 @@ class WP_Tax_Query {
 				ON $wpdb->term_taxonomy.term_taxonomy_id = $wpdb->term_relationships.term_taxonomy_id
 				WHERE $wpdb->term_taxonomy.taxonomy = %s
 				AND $wpdb->term_relationships.object_id = $this->primary_table.$this->primary_id_column
-			)", $clause['taxonomy']
+			)",
+				$clause['taxonomy']
 			);
 
 		}
@@ -502,7 +504,7 @@ class WP_Tax_Query {
 	protected function find_compatible_table_alias( $clause, $parent_query ) {
 		$alias = false;
 
-		// Sanity check. Only IN queries use the JOIN syntax .
+		// Sanity check. Only IN queries use the JOIN syntax.
 		if ( ! isset( $clause['operator'] ) || 'IN' !== $clause['operator'] ) {
 			return $alias;
 		}
@@ -547,7 +549,7 @@ class WP_Tax_Query {
 				return;
 			}
 
-			// so long as there are shared terms, include_children requires that a taxonomy is set
+			// So long as there are shared terms, 'include_children' requires that a taxonomy is set.
 			$query['include_children'] = false;
 		} elseif ( ! taxonomy_exists( $query['taxonomy'] ) ) {
 			$query = new WP_Error( 'invalid_taxonomy', __( 'Invalid taxonomy.' ) );

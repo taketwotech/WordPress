@@ -1,3 +1,7 @@
+/**
+ * @output wp-admin/js/widgets/media-video-widget.js
+ */
+
 /* eslint consistent-this: [ "error", "control" ] */
 (function( component ) {
 	'use strict';
@@ -17,7 +21,7 @@
 		/**
 		 * Create the default states.
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		createStates: function createStates() {
 			this.states.add([
@@ -84,7 +88,7 @@
 		 * Map model props to media frame props.
 		 *
 		 * @param {Object} modelProps - Model props.
-		 * @returns {Object} Media frame props.
+		 * @return {Object} Media frame props.
 		 */
 		mapModelToMediaFrameProps: function mapModelToMediaFrameProps( modelProps ) {
 			var control = this, mediaFrameProps;
@@ -96,7 +100,7 @@
 		/**
 		 * Fetches embed data for external videos.
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		fetchEmbed: function fetchEmbed() {
 			var control = this, url;
@@ -140,7 +144,7 @@
 		 *
 		 * @deprecated since 4.9.
 		 *
-		 * @returns {boolean} Whether url is a supported video host.
+		 * @return {boolean} Whether url is a supported video host.
 		 */
 		isHostedVideo: function isHostedVideo() {
 			return true;
@@ -149,7 +153,7 @@
 		/**
 		 * Render preview.
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		renderPreview: function renderPreview() {
 			var control = this, previewContainer, previewTemplate, attachmentId, attachmentUrl, poster, html = '', isOEmbed = false, mime, error, urlParser, matches;
@@ -207,7 +211,7 @@
 		/**
 		 * Open the media image-edit frame to modify the selected item.
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		editMedia: function editMedia() {
 			var control = this, mediaFrame, metadata, updateCallback;

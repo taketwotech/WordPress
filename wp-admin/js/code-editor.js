@@ -1,3 +1,7 @@
+/**
+ * @output wp-admin/js/code-editor.js
+ */
+
 if ( 'undefined' === typeof window.wp ) {
 	/**
 	 * @namespace wp
@@ -40,7 +44,7 @@ if ( 'undefined' === typeof window.wp.codeEditor ) {
 	 * @param {Function}   settings.onChangeLintingErrors - Callback for when there are changes to linting errors.
 	 * @param {Function}   settings.onUpdateErrorNotice - Callback to update error notice.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function configureLinting( editor, settings ) { // eslint-disable-line complexity
 		var currentErrorAnnotations = [], previouslyShownErrorAnnotations = [];
@@ -48,7 +52,7 @@ if ( 'undefined' === typeof window.wp.codeEditor ) {
 		/**
 		 * Call the onUpdateErrorNotice if there are new errors to show.
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		function updateErrorNotice() {
 			if ( settings.onUpdateErrorNotice && ! _.isEqual( currentErrorAnnotations, previouslyShownErrorAnnotations ) ) {
@@ -60,7 +64,7 @@ if ( 'undefined' === typeof window.wp.codeEditor ) {
 		/**
 		 * Get lint options.
 		 *
-		 * @returns {object} Lint options.
+		 * @return {object} Lint options.
 		 */
 		function getLintOptions() { // eslint-disable-line complexity
 			var options = editor.getOption( 'lint' );
@@ -75,7 +79,11 @@ if ( 'undefined' === typeof window.wp.codeEditor ) {
 				options = $.extend( {}, options );
 			}
 
-			// Note that rules must be sent in the "deprecated" lint.options property to prevent linter from complaining about unrecognized options. See <https://github.com/codemirror/CodeMirror/pull/4944>.
+			/*
+			 * Note that rules must be sent in the "deprecated" lint.options property 
+			 * to prevent linter from complaining about unrecognized options.
+			 * See <https://github.com/codemirror/CodeMirror/pull/4944>.
+			 */
 			if ( ! options.options ) {
 				options.options = {};
 			}
@@ -210,7 +218,7 @@ if ( 'undefined' === typeof window.wp.codeEditor ) {
 	 * @param {Function}   settings.onTabNext - Callback to handle tabbing to the next tabbable element.
 	 * @param {Function}   settings.onTabPrevious - Callback to handle tabbing to the previous tabbable element.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function configureTabbing( codemirror, settings ) {
 		var $textarea = $( codemirror.getTextArea() );
@@ -269,7 +277,7 @@ if ( 'undefined' === typeof window.wp.codeEditor ) {
 	 * @param {object}                [settings.htmlhint] - Rules for HTMLHint.
 	 * @param {object}                [settings.jshint] - Rules for JSHint.
 	 *
-	 * @returns {CodeEditorInstance} Instance.
+	 * @return {CodeEditorInstance} Instance.
 	 */
 	wp.codeEditor.initialize = function initialize( textarea, settings ) {
 		var $textarea, codemirror, instanceSettings, instance;
@@ -320,7 +328,7 @@ if ( 'undefined' === typeof window.wp.codeEditor ) {
 						' ' === event.key && /:\s+$/.test( lineBeforeCursor );
 				} else if ( 'javascript' === innerMode ) {
 					shouldAutocomplete = isAlphaKey || '.' === event.key;
-				} else if ( 'clike' === innerMode && 'application/x-httpd-php' === codemirror.options.mode ) {
+				} else if ( 'clike' === innerMode && 'php' === codemirror.options.mode ) {
 					shouldAutocomplete = 'keyword' === token.type || 'variable' === token.type;
 				}
 				if ( shouldAutocomplete ) {

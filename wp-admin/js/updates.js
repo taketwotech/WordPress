@@ -2,6 +2,7 @@
  * Functions for ajaxified updates, deletions and installs inside the WordPress admin.
  *
  * @version 4.2.0
+ * @output wp-admin/js/updates.js
  */
 
 /* global pagenow */
@@ -261,7 +262,8 @@
 
 		if ( 'undefined' !== typeof response.debug && window.console && window.console.log ) {
 			_.map( response.debug, function( message ) {
-				window.console.log( $( '<p />' ).html( message ).text() );
+				// Remove all HTML tags and write a message to the console.
+				window.console.log( wp.sanitize.stripTagsAndEncodeText( message ) );
 			} );
 		}
 	};
@@ -717,7 +719,7 @@
 		$installLink
 			.removeClass( 'updating-message' )
 			.text( wp.updates.l10n.installNow )
-			.attr( 'aria-label', wp.updates.l10n.installNowLabel.replace( '%s', pluginName ) );
+			.attr( 'aria-label', wp.updates.l10n.pluginInstallNowLabel.replace( '%s', pluginName ) );
 
 		wp.a11y.speak( errorMessage, 'assertive' );
 
@@ -1596,7 +1598,7 @@
 	 * @param {string} response.errorCode    Error code for the error that occurred.
 	 * @param {string} response.errorMessage The error that occurred.
 	 * @param {string} action                The type of request to perform.
-	 * @returns {boolean} Whether there is an error that needs to be handled or not.
+	 * @return {boolean} Whether there is an error that needs to be handled or not.
 	 */
 	wp.updates.maybeHandleCredentialError = function( response, action ) {
 		if ( wp.updates.shouldRequestFilesystemCredentials && response.errorCode && 'unable_to_connect_to_filesystem' === response.errorCode ) {
@@ -1930,7 +1932,7 @@
 					$button
 						.removeClass( 'updating-message' )
 						.text( wp.updates.l10n.installNow )
-						.attr( 'aria-label', wp.updates.l10n.installNowLabel.replace( '%s', pluginName ) );
+						.attr( 'aria-label', wp.updates.l10n.pluginInstallNowLabel.replace( '%s', pluginName ) );
 
 					wp.a11y.speak( wp.updates.l10n.updateCancel, 'polite' );
 				} );
@@ -2234,7 +2236,7 @@
 					wp.a11y.speak( wp.updates.l10n.pluginsFound.replace( '%d', response.count ) );
 				}
 			} );
-		}, 500 ) );
+		}, 1000 ) );
 
 		if ( $pluginSearch.length ) {
 			$pluginSearch.attr( 'aria-describedby', 'live-search-desc' );
@@ -2322,14 +2324,14 @@
 			$( 'input.wp-filter-search' ).trigger( 'input' );
 		} );
 
-		/** 
-		 * Trigger a search event when the "Try Again" button is clicked. 
-		 * 
+		/**
+		 * Trigger a search event when the "Try Again" button is clicked.
+		 *
 		 * @since 4.9.0
-		 */ 
-		$document.on( 'click', '.try-again', function( event ) { 
-			event.preventDefault(); 
-			$pluginInstallSearch.trigger( 'input' ); 
+		 */
+		$document.on( 'click', '.try-again', function( event ) {
+			event.preventDefault();
+			$pluginInstallSearch.trigger( 'input' );
 		} );
 
 		/**
@@ -2414,7 +2416,7 @@
 		 */
 		$( window ).on( 'message', function( event ) {
 			var originalEvent  = event.originalEvent,
-				expectedOrigin = document.location.protocol + '//' + document.location.hostname,
+				expectedOrigin = document.location.protocol + '//' + document.location.host,
 				message;
 
 			if ( originalEvent.origin !== expectedOrigin ) {

@@ -1,7 +1,10 @@
+/**
+ * @output wp-admin/js/password-strength-meter.js
+ */
+
 /* global zxcvbn */
 window.wp = window.wp || {};
 
-var passwordStrength;
 (function($){
 
 	/**
@@ -24,7 +27,7 @@ var passwordStrength;
 		 *                           the password.
 		 * @param {string} password2 The password confirmation.
 		 *
-		 * @returns {number} The password strength score.
+		 * @return {number} The password strength score.
 		 */
 		meter : function( password1, blacklist, password2 ) {
 			if ( ! $.isArray( blacklist ) )
@@ -51,7 +54,7 @@ var passwordStrength;
 		 *
 		 * @since 3.7.0
 		 *
-		 * @returns {string[]} The array of words to be blacklisted.
+		 * @return {string[]} The array of words to be blacklisted.
 		 */
 		userInputBlacklist : function() {
 			var i, userInputFieldsLength, rawValuesLength, currentField,
@@ -114,5 +117,5 @@ var passwordStrength;
 	 *
 	 * @type {wp.passwordStrength.meter}
 	 */
-	passwordStrength = wp.passwordStrength.meter;
+	window.passwordStrength = wp.passwordStrength.meter;
 })(jQuery);
